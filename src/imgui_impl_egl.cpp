@@ -25,6 +25,7 @@ KeyboardStdin::KeyboardStdin(void)
       new_termios.c_lflag &= ~(ICANON | ECHO | ECHOCTL | ECHONL);
       new_termios.c_cflag |= HUPCL;
       new_termios.c_cc[VMIN] = 0;
+      // new_termios.c_cc[VTIME] = 0;
 
       tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
     }
@@ -51,7 +52,7 @@ int KeyboardStdin::GetKeyIn(void)
 
   for (idx = 0; idx < KBDSTDIN_MAXCHAR; idx++)
     {
-      ch[idx] = getchar();
+      ch[idx] = getc(stdin);
       if (ch[idx] == EOF)
         break;
     }
@@ -62,6 +63,8 @@ int KeyboardStdin::GetKeyIn(void)
     }
   else if (idx != 1)
     ch[idx] = EOF;
+
+  clearerr(stdin);
 
   return ch[0];
 }

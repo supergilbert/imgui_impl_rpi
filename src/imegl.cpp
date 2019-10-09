@@ -1,8 +1,8 @@
 #include "imgui_impl_egl.h"
 #include "imgui_impl_gles2.h"
 
-static iie_handler_t __iie_hdl;
-static iig_handler_t __iig_hdl;
+static iie_handler_t __iie_hdl = {};
+static iig_handler_t __iig_hdl = {};
 
 #ifdef X11
 bool imegl_init(const char *window_name,

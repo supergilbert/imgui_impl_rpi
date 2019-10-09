@@ -5,6 +5,7 @@
 #include "imegl.h"
 #include "imegl_tools.h"
 #include "imgui_impl_egl.h"
+#include "imgui_internal.h"
 
 struct rpi_menu_item_t
 {
@@ -45,18 +46,21 @@ bool rpi_menu(rpi_menu_item_t *rpi_items,
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::SetNextWindowBgAlpha(1.0f);
+
         ImGui::Begin("rpi_menu",
                      &bool_var,
                      ImGuiWindowFlags_NoTitleBar
                      | ImGuiWindowFlags_NoDecoration
                      | ImGuiWindowFlags_NoMove);
 
-        ImGui::SetNextWindowBgAlpha(1.0f);
-        ImGui::SetNextWindowFocus();
-        if (ImGui::ListBoxHeader("", ImVec2(-1, -1)))
+        ImVec2 max = ImGui::GetWindowContentRegionMax();
+        if (ImGui::ListBoxHeader("",
+                                 ImVec2(-1,
+                                        max.y
+                                        - (ImGui::GetFrameHeightWithSpacing()
+                                           + ImGui::GetStyle().WindowPadding.y)
+                                        )))
           {
-            ImGui::SetNextWindowBgAlpha(1.0f);
             for (idx = 0; idx < items_count; idx++)
               if (ImGui::Selectable(rpi_items[idx].label) == true)
                 {
@@ -66,7 +70,15 @@ bool rpi_menu(rpi_menu_item_t *rpi_items,
             ImGui::ListBoxFooter();
           }
 
+        if (ImGui::Button("Cancel"))
+          continue_loop = false;
+
+        if (!ImGui::IsAnyItemFocused())
+          if (ImGui::GetIO().NavInputs[ImGuiNavInput_Cancel] == 1.0f)
+            continue_loop = false;
+
         ImGui::End();
+
         ImGui::Render();
         imegl_render_draw_data(ImGui::GetDrawData());
         imegl_swap_buffer();
